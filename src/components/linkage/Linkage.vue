@@ -1,6 +1,8 @@
 <!-- 多级联动 -->
 <style lang='scss' scoped>
 $borderColor: #dcdfe6;
+$color: #f8c555;
+
 .linkage-warp {
   display: inline-block;
   position: relative;
@@ -53,15 +55,20 @@ $borderColor: #dcdfe6;
     top: 0;
     border: 1px solid $borderColor;
   }
+  .active-panel-option {
+    color: $color;
+    background: rgba($color: #f1f1f1, $alpha: 0.6);
+  }
 }
 </style>
 <template>
   <div class="linkage-warp">
-    <div ref="linkpageText" class="h-linkage-text" @click.stop="switchPanelMode">{{ showText }}</div>
+    <div ref="linkpageText" class="h-linkage-text" @click="switchPanelMode">{{ showText }}</div>
     <!--下拉面板-->
     <div ref="linkpagePanel" class="h-linkage-panel" :style="{ width: `${style.width}px`, top: `${style.top}px` }" v-show="isShowPanel">
       <ul v-if="originList.length">
-        <li v-for="(item, index) of originList" :key="index" @mousemove="showChildren(item && item.children, 1, item)" @click.stop="selectValue(item.val, 1)">
+        <li v-for="(item, index) of originList" :key="index"  :class="{'active-panel-option': item.val === linkageVal[0] }"
+        @mousemove="showChildren(item && item.children, 1, item)" @click.stop="selectValue(item.val, 1)">
           {{ item.name }}
           <span class="more" v-if="item.children">></span>
         </li>
@@ -76,7 +83,8 @@ $borderColor: #dcdfe6;
       v-show="isShowSecondPanel"
     >
       <ul>
-        <li v-for="(item, index) of secondList" :key="index" @mousemove="showChildren(item && item.children, 2, item)" @click.stop="selectValue(item.val, 2)">
+        <li v-for="(item, index) of secondList.list" :key="index" :class="{'active-panel-option': secondList.parent.val === linkageVal[0] && item.val === linkageVal[1] }"
+        @mousemove="showChildren(item && item.children, 2, item)" @click.stop="selectValue(item.val, 2)">
           {{ item.name }}
           <span class="more" v-if="item.children">></span>
         </li>
@@ -88,7 +96,8 @@ $borderColor: #dcdfe6;
       v-show="isShowThirdPanel"
     >
       <ul>
-        <li v-for="(item, index) of thirdList" :key="index" @click.stop="selectValue(item.val, 3)">
+        <li v-for="(item, index) of thirdList.list" :key="index"  :class="{'active-panel-option': secondList.parent.val === linkageVal[1]  && item.val === linkageVal[2] }"
+        @click.stop="selectValue(item.val, 3)">
           {{ item.name }}
         </li>
       </ul>
@@ -122,28 +131,36 @@ export default {
         left: 0,
       },
       originList: [],
-      secondList: [],
-      thirdList: [],
+      secondList: {
+        parent: null,
+        list: []
+      },
+      thirdList: {
+        parent: null,
+        list: []
+      },
       linkageVal: [],
       curSelectObj: {},
       showText: '',
     };
   },
-  wathcher: {
-    data(newVal, oldVal) {
+  watch: {
+    value(newVal, oldVal) {
       this.linkageVal = newVal;
+      this.parseValsToText(this.linkageVal)
     },
   },
   methods: {
     switchPanelMode() {
       this.getCurTextInputPos();
-      this.switchPanelStatus(!this.isShowPanel);
+      
+      // this.switchPanelStatus(!this.isShowPanel);
       //TODO: 有值，返显已选值的面板以及内容
-      // if ([this.isShowPanel, this.isShowSecondPanel, this.isShowThirdPanel].some(isShow => isShow)) {
-      //   this.switchPanelStatus();
-      // } else {
-      //   this.switchPanelStatus(true, this.linkageVal.length > 1, this.linkageVal >2);
-      // }
+      if ([this.isShowPanel, this.isShowSecondPanel, this.isShowThirdPanel].some(isShow => isShow)) {
+        this.switchPanelStatus();
+      } else {
+        this.initPanel();
+      }
     },
     switchPanelStatus(panelStatus = false, panelStatus2 = false, panelStatus3 = false) {
       this.isShowPanel = panelStatus;
@@ -159,19 +176,24 @@ export default {
     },
     globalClickCb(e) {
       const target = e.target;
+      if (e.target === this.$refs.linkpageText) return;
       const eClassList = target.className.split(' ').map((c) => c.trim());
 
       this.switchPanelStatus();
     },
     showChildren(children, level, curData) {
-      const listName = level === 1 ? 'secondList' : 'thirdList';
       this.opSelectObj(level, curData);
       if (!children || !children.length) {
         this.switchPanelStatus(true, level > 1, false);
         return;
       }
-      this[listName] = children;
+      this.loadPanelData(children, curData, level);
       this.switchPanelStatus(true, level > 0, level > 1);
+    },
+    loadPanelData(list, parent, panelType) {
+      const listName = panelType === 1 ? 'secondList' : 'thirdList';
+      this[listName].list = list;
+      this[listName].parent = parent || null;
     },
     opSelectObj(level, obj) {
       if (level === 1) {
@@ -187,8 +209,11 @@ export default {
         resArr.push(curObj.val);
         curObj = curObj.child;
       }
+      if (level > 2) {
+        resArr.push(val);
+      }
       this.linkageVal = resArr;
-
+      console.log(resArr);
       this.parseValsToText(this.linkageVal);
       this.$emit('change', this.linkageVal);
       this.switchPanelStatus();
@@ -202,17 +227,37 @@ export default {
     parseValsToText(vals = []) {
       this.showText = '';
       let enumsList = this.originList,
-        resData;
+        resData, textArr = [];
       for (let i = 0, len = vals.length; i < len; i++) {
         resData = enumsList.filter((item) => item.val === vals[i]);
         if (resData.length) {
-          this.showText += resData[0].name;
+          textArr.push(resData[0].name);
           enumsList = resData[0].children || [];
         } else {
-          return this.showText;
+          break;
         }
       }
+      this.showText = textArr.join(' > ');
     },
+    initPanel() {
+      let level = 1;
+      let resArr = [true, false, false];
+      let transverseList = this.originList;
+      this.linkageVal.forEach(val => {
+        for (let i = 0, len = transverseList.length; i < len ; i++) {
+          if (transverseList[i].val === val) {
+            if (level < 3 && transverseList[i].children && transverseList[i].children.length > 0) {
+              this.loadPanelData(transverseList[i].children, transverseList[i], level);
+              resArr[level] = true;
+            }
+            transverseList = transverseList[i].children || [];
+            level++;
+            break;
+          }
+        }
+      });
+      this.switchPanelStatus(...resArr);
+    }
   },
   beforeDestroy() {
     window.removeEventListener('click', this.globalClickCb);

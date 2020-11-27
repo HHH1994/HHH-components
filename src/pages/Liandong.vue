@@ -3,11 +3,13 @@
 </style>
 <template>
   <div>
+    <h3>省市区三级联动</h3>
     <Linkage :data="list" v-model="selectVal"></Linkage>
     <div style="margin-top: 10px;">
+      <h3>无数据</h3>
       <Linkage :data="[]" v-model="selectVal"></Linkage>
     </div>
-    <button @click="test">获取值</button>
+    <button @click="test">初始化值</button>
   </div>
 </template>
 
@@ -83,6 +85,7 @@ export default {
 
   methods: {
     test() {
+      this.selectVal= [1,2];
       console.log(this.selectVal);
     }
   },
