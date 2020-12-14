@@ -96,7 +96,7 @@ $color: #f8c555;
       v-show="isShowThirdPanel"
     >
       <ul>
-        <li v-for="(item, index) of thirdList.list" :key="index"  :class="{'active-panel-option': secondList.parent.val === linkageVal[1]  && item.val === linkageVal[2] }"
+        <li v-for="(item, index) of thirdList.list" :key="index"  :class="{'active-panel-option':  secondList.parent.val === linkageVal[0]  && thirdList.parent.val === linkageVal[1]  && item.val === linkageVal[2] }"
         @click.stop="selectValue(item.val, 3)">
           {{ item.name }}
         </li>
@@ -212,6 +212,9 @@ export default {
       if (level > 2) {
         resArr.push(val);
       }
+      if (level < 2) {
+        resArr = resArr.slice(0, 1);
+      }
       this.linkageVal = resArr;
       console.log(resArr);
       this.parseValsToText(this.linkageVal);
@@ -248,10 +251,11 @@ export default {
           if (transverseList[i].val === val) {
             if (level < 3 && transverseList[i].children && transverseList[i].children.length > 0) {
               this.loadPanelData(transverseList[i].children, transverseList[i], level);
+              this.opSelectObj(level, transverseList[i]);
               resArr[level] = true;
             }
-            transverseList = transverseList[i].children || [];
             level++;
+            transverseList = transverseList[i].children || [];
             break;
           }
         }
