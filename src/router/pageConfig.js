@@ -18,5 +18,9 @@ export const pageRouterConfig = [
     {
         name: 'BackToTop',
         desc: '回到顶部'
+    },
+    {
+        name: 'ParsePasteContent',
+        desc: '解析粘贴板'
     }
 ]
