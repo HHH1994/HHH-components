@@ -1,31 +1,14 @@
 <!-- 主页 -->
-<style lang='scss' scoped>
-  .h-menu {
-    float: left;
-    box-sizing: border-box;
-    width: 200px;
-    height: 100vh;
-    overflow-y: auto;
-    padding: 20px 10px;
-    list-style: none;
-    li {
-      cursor: pointer;
-      height: 40px;
-    }
-  }
-
-  .main {
-    box-sizing: border-box;
-    height: 100vh;
-    overflow-y: auto;;
-    padding: 20px;
-  }
-</style>
 <template>
   <div class="root">
     <!-- 左边菜单 -->
     <ul class="h-menu">
-      <li v-for="(menu, index) of menuList" :key="index" @click="changePage(menu.name)">
+      <li 
+        v-for="(menu, index) of menuList" 
+        :key="index" 
+        :class="{active: activeIdx === index}"
+        @click="changePage(menu.name, index)"
+      >
         {{menu.name}} {{menu.meta && menu.meta.desc}}
       </li>
     </ul>
@@ -47,13 +30,15 @@ export default {
   },
   data() {
     return {
+      activeIdx: 0,
       menuList: []
     };
   },
 
   methods: {
-    changePage(name) {
+    changePage(name, idx) {
       this.$router.push({name});
+      this.activeIdx = idx;
     }
   },
   created() {
@@ -62,3 +47,32 @@ export default {
   }
 }
 </script>
+<style lang='scss' scoped>
+  .h-menu {
+    float: left;
+    box-sizing: border-box;
+    width: 200px;
+    height: 100vh;
+    overflow-y: auto;
+    padding: 20px 10px;
+    list-style: none;
+    box-shadow: 2px 0 5px rgba($color: #000000, $alpha: 0.3);
+
+    li {
+      cursor: pointer;
+      height: 40px;
+      user-select: none;
+    }
+
+    .active {
+      color: #1e80ff;
+    }
+  }
+
+  .main {
+    box-sizing: border-box;
+    height: 100vh;
+    overflow-y: auto;;
+    padding: 20px;
+  }
+</style>
