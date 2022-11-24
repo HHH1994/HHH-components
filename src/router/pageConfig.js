@@ -22,5 +22,13 @@ export const pageRouterConfig = [
     {
         name: 'ParsePasteContent',
         desc: '解析粘贴板'
+    },
+    {
+        name: 'InfiniteScrollList',
+        desc: '无限滚动列表'
+    },
+    {
+        name: 'WaterFull',
+        desc: '瀑布流布局'
     }
 ]
