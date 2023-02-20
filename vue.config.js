@@ -1,5 +1,4 @@
 const path = require('path');
-
 module.exports = {
     publicPath:'./',
     outputDir:'dist',
@@ -7,12 +6,22 @@ module.exports = {
     // webpack配置
     chainWebpack : config =>{},
     configureWebpack:{
-        
+        resolve: {
+            alias: {
+                '@': path.resolve(__dirname, './src'),
+            }
+        }
     },
     // vueloader配置
     productionSourceMap:false,
     // css相关配置
-    css:{},
+    css:{
+        loaderOptions:  {
+            sass: {
+                prependData: '@import "@/assets/scss/base.scss";',
+            }
+        }
+    },
     // webpack-dev-server相关配置
     devServer:{
         open:true,

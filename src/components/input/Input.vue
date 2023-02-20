@@ -2,14 +2,20 @@
 <style lang='scss' scoped>
   $color: #f8c555;
   $borderColor: #dcdfe6;
+
+  .input-wrapper {
+    display: inline-block;
+  }
   
   input {
     outline: none;
     border: 1px solid $borderColor;
-    display: 40px;
+    display: inline-block;
+    width: 100%;
     height: 40px;
     padding: 0 15px;
     border-radius: 3px;;
+    box-sizing: border-box;
   }
 
   .h-textarea {
@@ -26,7 +32,7 @@
   }
 </style>
 <template>
-  <div>
+  <div class="input-wrapper">
     <input type="text" :value="value" @input="change" v-if="type !== 'textarea'" :placeholder="placeholder">
     <textarea class="h-textarea" :value="value" @input="change"  v-if="type === 'textarea'" :placeholder="placeholder"></textarea>
   </div>

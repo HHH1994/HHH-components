@@ -2,16 +2,20 @@
 <template>
   <div class="root">
     <!-- 左边菜单 -->
-    <ul class="h-menu">
-      <li 
-        v-for="(menu, index) of menuList" 
-        :key="index" 
-        :class="{active: activeIdx === index}"
-        @click="changePage(menu.name, index)"
-      >
-        {{menu.name}} {{menu.meta && menu.meta.desc}}
-      </li>
-    </ul>
+    <div class="menu-wrap">
+      <ul ref="hMenu" class="h-menu">
+        <section ref="liWrap" class="li-wrap">
+          <li 
+            v-for="(menu, index) of menuList" 
+            :key="index" 
+            :class="{active: activeIdx === index}"
+            @click="changePage(menu.name, index)"
+          >
+            {{menu.name}} {{menu.meta && menu.meta.desc}}
+          </li>          
+        </section>
+      </ul>
+    </div>
     <!-- 内容显示 -->
     <div class="main">
       <router-view></router-view>
@@ -20,52 +24,54 @@
 </template>
 
 <script>
-import Form from '@/components/form/form'
-import FormItem from '@/components/form/form-item'
 
 export default {
-  components: {
-    Form,
-    FormItem
-  },
   data() {
     return {
       activeIdx: 0,
       menuList: []
     };
   },
-
+  created() {
+    this.menuList = this.$router.options.routes[0].children;
+    this.activeIdx = this.menuList.findIndex(item => item.name === this.$route.name)
+  },
   methods: {
     changePage(name, idx) {
       this.$router.push({name});
       this.activeIdx = idx;
     }
   },
-  created() {
-    this.menuList = this.$router.options.routes[0].children;
-    console.log(this.$router);
-  }
 }
 </script>
 <style lang='scss' scoped>
-  .h-menu {
+  .menu-wrap {
     float: left;
-    box-sizing: border-box;
-    width: 200px;
+    width: 240px;
     height: 100vh;
-    overflow-y: auto;
-    padding: 20px 10px;
-    list-style: none;
+    overflow: hidden;
     box-shadow: 2px 0 5px rgba($color: #000000, $alpha: 0.3);
 
-    li {
-      cursor: pointer;
-      height: 40px;
-      user-select: none;
-    }
+    .h-menu {
+      width: calc( 240px + 18px);
+      height: 100vh;
+      box-sizing: border-box;
+      overflow-y: auto;
+      padding: 20px 10px;
+      list-style: none;
 
-    .active {
-      color: #1e80ff;
+      li {
+        cursor: pointer;
+        height: 40px;
+        line-height: 40px;
+        padding: 5px;
+        font-size: 15px;
+        user-select: none;
+      }
+
+      .active {
+        color: #1e80ff;
+      }
     }
   }
 

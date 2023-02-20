@@ -30,5 +30,14 @@ export const pageRouterConfig = [
     {
         name: 'WaterFull',
         desc: '瀑布流布局'
+    },
+    {
+        name: 'SliceDownload',
+        desc: '分片下载'
+    },
+    {
+        name: 'Websocket',
+        desc: '双向通信'
     }
+    
 ]
