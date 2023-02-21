@@ -3,12 +3,14 @@
   <div class="wrapper">
     <p style="margin-bottom: 20px">Websocket示例</p>
     <section class="service">
-        <HInput v-model="socketConf.path" placeholder="请输入websocket的服务连接地址" style="width: 500px;"></HInput>
-        <div class="h-button" @click="connect">连接</div>
-        <div class="h-button" @click="disconnect">断开</div>
+        <HInput v-model="socketConf.path" placeholder="请输入websocket的服务连接地址" style="width: 500px;margin-right:10px;"></HInput>
+        <span class="h-btn" @click="connectHandle">连接</span>
+        <span class="h-btn" @click="disconnect">断开</span>
     </section>
-    <p v-if="socket.instance && retryTime && retryTime < 6">正在重新连接中，第{{retryTime}}次尝试</p>
-    <p v-if="socket.instance && retryTime && retryTime > 5">重新连接失败，请手动连接</p>
+    <div style="margin-bottom: 10px;">
+      <p v-if="socket.instance && retryTime && retryTime < maxReconnectTime + 1">正在重新连接中，第{{retryTime}}次尝试</p>
+      <p v-if="socket.instance && retryTime && retryTime >= maxReconnectTime + 1">重新连接失败，请手动连接</p>
+    </div>
     <section class="content">
       <div class="content-lf">
         <div class="form-item">
@@ -18,11 +20,12 @@
         <div class="form-item">
             <label>message</label>
             <HInput v-model="socketConf.message" placeholder="请输入websocket的信息"></HInput>
-            <div class="h-button" @click="send">发送</div>
+            <span class="h-btn" @click="send" style="margin-left: 10px;vertical-align:middle;">发送</span>
+            <input type="checkbox" v-model="isClear"  style="vertical-align:middle;margin-right: 5px;"/><span>发送后是否清空</span>
         </div>
         <div class="form-item">
-            <label>心跳间隔</label>
-            <HInput v-model="socketConf.interval" placeholder="请输入心跳间隔"></HInput>
+            <label>最大重连次数</label>
+            <HInput v-model="socketConf.maxTime" placeholder="请输入最大重连次数" @change="retryTime=0;"></HInput>
         </div>
       </div>
       <div class="content-rg">
@@ -43,26 +46,37 @@ export default {
   components: {
     HInput,
   },
+
   data() {
     return {
         socketConf: {
             path: '',
             header: '',
             message: '',
-            interval: ''
+            maxTime: ''
         },
         logs: [],
         socket: {
           isConnected: false,
-          instance: null,
-          retrying: false
+          instance: null
         },
         retryTime: 0,
+        isClear: false
     };
   },
+  computed: {
+    maxReconnectTime() {
+      return (+this.socketConf.maxTime || 5);
+    }
+  },
   methods: {
+    connectHandle() {
+      this.retryTime = 0;
+      this.connect();
+    },
     connect() {
-      if (this.socket.isConnected) {
+      // 防止创建重复的socket会话
+      if (this.socket.isConnected || (this.socket.instance && this.socket.instance.readyState < 2)) {
         return;
       }
 
@@ -75,7 +89,6 @@ export default {
       
       try {
         const socket = this.socket.instance = new WebSocket(this.socketConf.path, [this.socketConf.header || undefined]);
-        this.retryTime++;
 
         console.log('this.socket.instance', this.socket.instance);
 
@@ -93,23 +106,27 @@ export default {
 
         socket.onmessage = (msg) => {
           const data = msg.data;
-          this.logs.push(`接受: ${data}  ${getTimestamped()}`, );
+          this.logs.push(`接收: ${data}  ${getTimestamped()}`, );
         }
 
         socket.onclose = () => {
           this.socket.isConnected = false;
 
           this.logs.push(`服务已断开连接  ${getTimestamped()}`, );
-          console.log('retryTime', this.retryTime)
-          if (this.socket.instance && this.retryTime < 6) {
-            this.connect();
+          if (this.socket.instance && this.retryTime < this.maxReconnectTime) {
+            this.reconnect();
+          } else {
+            this.retryTime++;
           }
         }
       } catch(err) {
         console.log('err occur')
-      }
-      
+      }  
 
+    },
+    reconnect() {
+      this.retryTime++;
+      this.connect();
     },
     disconnect() {
       if (this.socket.isConnected) {
@@ -124,6 +141,10 @@ export default {
       }
 
       this.logs.push(`发送: ${this.socketConf.message}  ${getTimestamped()}`, );
+
+      if (this.isClear) {
+        this.socketConf.message = '';
+      }
 
       this.socket.instance.send(this.socketConf.message);
     }
@@ -168,7 +189,7 @@ export default {
         }
 
         &-rg {
-            flex-basis: 45%;
+            flex-basis: 42%;
             height: 100%;
             overflow-y: auto;
 
@@ -182,7 +203,7 @@ export default {
         margin-bottom: 10px;
         label {
             display: inline-block;
-            width: 80px;
+            width: 100px;
             text-align: right;
             margin-right: 10px;
             vertical-align: middle;
