@@ -142,11 +142,11 @@ export default {
 
       this.logs.push(`发送: ${this.socketConf.message}  ${getTimestamped()}`, );
 
+      this.socket.instance.send(this.socketConf.message);
+
       if (this.isClear) {
         this.socketConf.message = '';
       }
-
-      this.socket.instance.send(this.socketConf.message);
     }
   },
 };
