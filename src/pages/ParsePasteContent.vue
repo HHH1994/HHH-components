@@ -26,6 +26,10 @@
         </li>
       </ul>
     </section>
+    <section class="forbidden">
+      <p class="title">禁止粘贴</p>
+      <textarea name="" id="" cols="30" rows="10" @paste.prevent></textarea>
+    </section>
   </div>
 </template>
 <script>
@@ -79,9 +83,12 @@ export default {
   }
 }
 
+.forbidden,
 .file {
     margin-top: 50px;
+}
 
+.file {
     .file-wrap {
         display: inline-block;
         width: 150px;
