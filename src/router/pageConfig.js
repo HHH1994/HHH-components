@@ -4,6 +4,10 @@ export const pageRouterConfig = [
         desc: '输入框'
     },
     {
+        name: 'DropdownView',
+        desc: '下拉菜单'
+    },
+    {
         name: 'Editor',
         desc: '编辑器'
     },
@@ -38,6 +42,10 @@ export const pageRouterConfig = [
     {
         name: 'Websocket',
         desc: '双向通信'
+    },
+    {
+        name: 'RuleTreeView',
+        desc: '规则树'
     }
     
 ]
