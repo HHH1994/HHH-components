@@ -1,6 +1,6 @@
 <!-- 节点 -->
 <template>
-  <RuleTree class="subTree" v-if="data.children" :treeData="data.children" />
+  <RuleTree class="subTree" v-if="data.nodes" :treeData="data" />
   <div v-else class="rule_node">
     <HInput v-model="data.value" />
     <div class="operate-group">

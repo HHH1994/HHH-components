@@ -9,10 +9,8 @@
       {
         type: '',  // 类型
         value: '', // 值
-        children: { // 子节点
-          conditions: '',
-          nodes: []
-        }
+        conditions: '', // 条件
+        nodes: [] // 子节点
       }
     ]
 }

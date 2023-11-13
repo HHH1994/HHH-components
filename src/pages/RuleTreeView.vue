@@ -1,6 +1,7 @@
 <!-- 规则树组件 -->
 <template>
   <div class="rule-tree_wrap">
+      <button @click="getData">获取数据</button>
       <RuleTree :treeData="treeData"/>
   </div>
 </template>
@@ -31,9 +32,8 @@ export default {
             {
               value: '',
               type: '',
-              children: {
-                condition: 'or',
-                nodes: [
+              condition: 'or',
+              nodes: [
                   {
                     value: '665',
                     type: 'text'
@@ -43,7 +43,6 @@ export default {
                     type: 'text'
                   }
                 ]
-              }
             }
           ]
         }
@@ -58,18 +57,21 @@ export default {
         parentNode.isRoot = true;
         parentNode.nodes.forEach(node => {
           node.originNode = parentNode;
-          if (node.children) {
+          if (node.nodes) {
             this.parseNodes(node, false);
           }
         })   
        } else {
-         parentNode.children.nodes.forEach(node => {
+         parentNode.nodes.forEach(node => {
            node.originNode = parentNode;
-           if (node.children) {
+           if (node.nodes) {
             this.parseNodes(node, false);
           } 
          })
        }
+     },
+     getData() {
+       console.log(this.treeData)
      }
    }     
 }

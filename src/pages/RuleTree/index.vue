@@ -1,7 +1,7 @@
 <!-- 规则树组件 -->
 <template>
   <div v-if="innerData.nodes.length > 0" ref="ruleTreeRef" class="rule-tree_wrap">
-      <span class="node_condition">{{operateMap[innerData.condition]}}</span>
+      <span class="node_condition" @click="changeCondition">{{operateMap[innerData.condition]}}</span>
       <div class="rule-tree_nodes">
         <RuleNode 
           v-for="(node, index) of innerData.nodes" 
@@ -53,6 +53,9 @@ export default {
      
    },
    methods: {
+    changeCondition() {
+      this.innerData.condition = this.innerData.condition === 'or' ? 'and' : 'or';
+    },
     addNode(node, index,condition) {
       if (condition === this.treeData.condition) {
         const newNode = {type: 'Input', value: ''};
@@ -61,15 +64,13 @@ export default {
         }
         this.innerData.nodes.push(newNode)  
       } else {
-        if (!node.children) {
+        if (!node.nodes) {
           const nodeCopy = shallowCopy(node, ['originNode']);
           node.type = '';
           node.value = '';
           nodeCopy.originNode = node;
-          this.$set(node, 'children', {
-            condition: condition,
-            nodes: [nodeCopy, {type: 'Input', value: '', originNode: node}]
-          });
+          this.$set(node, 'condition', condition);
+          this.$set(node, 'nodes', [nodeCopy, {type: 'Input', value: '', originNode: node}]);
         }
       }
     },
@@ -77,17 +78,42 @@ export default {
       this.innerData.nodes.splice(index, 1)
       if (this.innerData.nodes.length === 1) {
         const lastNode = this.innerData.nodes[0];
-        if (node.originNode.isRoot && lastNode.children) { 
-          node.originNode.condition = lastNode.children.condition;
-          node.originNode.nodes = lastNode.children.nodes;
-          lastNode.children.nodes.forEach(subnode => {
-            subnode.originNode = node.originNode;
+        const parentNode = node.originNode;
+        if (parentNode.isRoot && lastNode.nodes) { 
+          parentNode.condition = lastNode.condition;
+          parentNode.nodes = lastNode.nodes;
+          lastNode.nodes.forEach(subnode => {
+            subnode.originNode = parentNode;
           })
           return;
         }
-        node.originNode.type = lastNode.type;
-        node.originNode.value = lastNode.value;
-        node.originNode.children = null;
+
+        parentNode.condition = null;
+        parentNode.type = lastNode.type;
+        parentNode.value = lastNode.value;
+        parentNode.nodes = null;
+
+        if (lastNode.nodes) {
+          const ancientNode = parentNode.originNode;
+          if (lastNode.condition !== ancientNode.condition) {
+            parentNode.condition = lastNode.condition;
+            parentNode.nodes = lastNode.nodes;
+            lastNode.nodes.forEach(cnode => {
+              cnode.originNode = parentNode;
+            })
+          } else {
+            // delete parent node
+            const parentNodeIdx = ancientNode.nodes.findIndex(cnode => cnode === parentNode);
+            ancientNode.nodes.splice(parentNodeIdx, 1,)
+
+            lastNode.nodes.forEach((cnode, idx) => {
+              const newNode = shallowCopy(cnode, ['originNode']);
+              newNode.originNode = ancientNode;
+              ancientNode.nodes.splice(parentNodeIdx + idx, 0, newNode);
+            })
+
+          }
+        } 
       }
     }
    }
