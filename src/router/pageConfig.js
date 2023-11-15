@@ -46,6 +46,10 @@ export const pageRouterConfig = [
     {
         name: 'RuleTreeView',
         desc: '规则树'
+    },
+    {
+        name: 'PhotoWithWaterMark',
+        desc: '拍照水印上传'
     }
     
 ]

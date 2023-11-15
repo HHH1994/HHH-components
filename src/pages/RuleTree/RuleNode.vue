@@ -2,6 +2,9 @@
 <template>
   <RuleTree class="subTree" v-if="data.nodes" :treeData="data" />
   <div v-else class="rule_node">
+    <!-- 字段选择器 -->
+    <!-- 操作符 -->
+    <!-- 输入型组件 -->
     <HInput v-model="data.value" />
     <div class="operate-group">
       <Dropdown :commands="['and', 'or']" @command="addNode" style="margin-right: 10px">
