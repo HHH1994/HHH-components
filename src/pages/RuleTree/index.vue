@@ -75,7 +75,8 @@ export default {
       }
     },
     removeNode(node, index) {
-      this.innerData.nodes.splice(index, 1)
+      this.innerData.nodes.splice(index, 1);
+
       if (this.innerData.nodes.length === 1) {
         const lastNode = this.innerData.nodes[0];
         const parentNode = node.originNode;
@@ -91,7 +92,7 @@ export default {
         parentNode.condition = null;
         parentNode.type = lastNode.type;
         parentNode.value = lastNode.value;
-        parentNode.nodes = null;
+        parentNode.nodes = [];
 
         if (lastNode.nodes) {
           const ancientNode = parentNode.originNode;
@@ -106,10 +107,12 @@ export default {
             const parentNodeIdx = ancientNode.nodes.findIndex(cnode => cnode === parentNode);
             ancientNode.nodes.splice(parentNodeIdx, 1,)
 
-            lastNode.nodes.forEach((cnode, idx) => {
-              const newNode = shallowCopy(cnode, ['originNode']);
-              newNode.originNode = ancientNode;
-              ancientNode.nodes.splice(parentNodeIdx + idx, 0, newNode);
+            this.$nextTick(() => {
+              lastNode.nodes.forEach((cnode, idx) => {
+                const newNode = shallowCopy(cnode, ['originNode']);
+                newNode.originNode = ancientNode;
+                ancientNode.nodes.splice(parentNodeIdx + idx, 0, newNode);
+              })
             })
 
           }
