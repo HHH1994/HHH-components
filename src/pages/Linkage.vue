@@ -1,13 +1,11 @@
 <!-- 组件: 多级联动 -->
-<style lang='scss' scoped>
-</style>
 <template>
   <div>
     <h3>省市区三级联动</h3>
-    <Linkage :data="list" v-model="selectVal"></Linkage>
+    <Linkage :data="list" v-model="selectVal" class="linkage"></Linkage>
     <div style="margin-top: 10px;">
       <h3>无数据</h3>
-      <Linkage :data="[]" v-model="selectVal"></Linkage>
+      <Linkage :data="[]" v-model="selectVal"  class="linkage"></Linkage>
     </div>
     <button @click="test">初始化值</button>
   </div>
@@ -15,82 +13,58 @@
 
 <script>
 import Linkage from '@/components/linkage/Linkage';
+import cityJSON from '../assets/js/cities';
+import city from '../assets/js/cities';
+
 export default {
   components: {
     Linkage,
   },
   data() {
     return {
-      selectVal: [],
-      list: [
-        {
-          val: 1,
-          name: '上海',
-        },
-        {
-          val: 2,
-          name: '浙江',
-          children: [
-            {
-              val: 1,
-              name: '衢州',
-            },
-            {
-              val: 2,
-              name: '杭州',
-              children: [
-                {
-                  val: 1,
-                  name: '上城区',
-                },
-                {
-                  val: 2,
-                  name: '下城区',
-                },
-                {
-                  val: 3,
-                  name: '江干区',
-                },
-              ],
-            },
-          ],
-        },
-        {
-          val: 3,
-          name: '安徽',
-          children: [
-            {
-              val: 1,
-              name: '合肥',
-            },
-            {
-              val: 2,
-              name: '黄山',
-              children: [
-                {
-                  val: 1,
-                  name: '山上',
-                },
-                {
-                  val: 2,
-                  name: '山下',
-                }
-              ],
-            }
-          ]
-        }
-      ],
+      selectVal: ['', ''],
+      list:[]
     };
   },
-
-  methods: {
-    test() {
-      this.selectVal= [1,2];
-      console.log(this.selectVal);
-    }
-  },
   created() {
-    this.selectVal = [2, 2]
+    this.getCityList();
+  },
+  methods: {
+    getCityList() {
+      const list = [];
+
+      cityJSON.forEach(province => {
+        province.children = province.areas.map(city => {
+          if (city.areas) {
+            city.children = city.areas.map(county => {
+              return {
+                name: county.name,
+                val: county.id
+              }
+            })
+          }
+
+          city.val = city.id;
+
+          return city;
+        });
+        province.val = province.id;
+        list.push(province);
+      });
+      this.list = list;
+    },
+    test() {
+      this.selectVal= ['', ''];
+    }
   }
 };
 </script>
+<style lang='scss' scoped>
+h3 {
+  margin-bottom: 10px;
+}
+
+.linkage {
+  margin-bottom: 30px;
+}
+</style>
