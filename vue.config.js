@@ -4,7 +4,18 @@ module.exports = {
     outputDir:'dist',
     lintOnSave:false, // 关闭eslint检查
     // webpack配置
-    chainWebpack : config =>{},
+    chainWebpack : config =>{
+        // 拷贝static静态文件夹
+        config.plugin('copy').init(
+            (CopyWebpackPlugin) =>
+                new CopyWebpackPlugin([
+                    {
+                        from: path.resolve(__dirname, './static'),
+                        to: 'static',
+                    }
+                ])
+        )
+    },
     configureWebpack:{
         resolve: {
             alias: {
