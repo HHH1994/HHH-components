@@ -161,7 +161,10 @@ export default {
     },
     scrollOrgList(level, index) {
       this.selectedOrgIdx.splice(level - 1, 1, index);
-      this.$refs[`org${level}Ref${index}`][0].scrollIntoView();
+      this.$refs[`org${level}Ref${index}`][0].scrollIntoView({
+        inline: 'center',
+        behavior: 'smooth'
+      });
     },
     preOrg(level) {
       const idx = this.selectedOrgIdx[level - 1] - 1;
