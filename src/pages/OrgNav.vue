@@ -10,7 +10,7 @@
           src="@/assets/image/largeScreen/arrow.png"
           @click="() => preOrg(1)"
         >
-        <ul ref="orgTreeLevel1Ref" class="org-tree_level1">
+        <ul ref="orgTreeLevel1Ref" class="org-tree_level1" @mousewheel="(e) => orgTreeWheelHandler(e, 1)">
           <li
             v-for="(org, index) of orgTreeListLevel1"
             :ref="`org1Ref${index}`"
@@ -31,7 +31,7 @@
       </div>
       <!-- 二级机构 -->
       <div v-if="orgTreeListLevel2.length" class="org-tree_level2_wrap">
-        <ul ref="orgTreeLevel2Ref" class="org-tree_level2">
+        <ul ref="orgTreeLevel2Ref" class="org-tree_level2" @mousewheel="(e) => orgTreeWheelHandler(e, 2)">
           <li
             v-for="(suborg, index) of orgTreeListLevel2"
             :ref="`org2Ref${index}`"
@@ -65,7 +65,7 @@
       </div>
       <!-- 三级机构 -->
       <div v-if="orgTreeListLevel3.length" class="org-tree_level3_wrap">
-        <ul ref="orgTreeLevel3Ref" class="org-tree_level3">
+        <ul ref="orgTreeLevel3Ref" class="org-tree_level3" @mousewheel="(e) => orgTreeWheelHandler(e, 3)">
           <li
             v-for="(thirdorg, index) of orgTreeListLevel3"
             :ref="`org3Ref${index}`"
@@ -208,6 +208,20 @@ export default {
 
       if (this.isExpand.third) {
         this.openExpandSub(false);
+      }
+    },
+    orgTreeWheelHandler(e, level) {
+      const dom = this.$refs[`orgTreeLevel${level}Ref`];
+      if (dom) {
+        if (e.wheelDelta > 0) {
+          requestAnimationFrame(() => {
+            dom.scrollLeft -= 50;
+          });
+        } else {
+          requestAnimationFrame(() => {
+            dom.scrollLeft += 50;
+          });
+        }
       }
     }
   }
