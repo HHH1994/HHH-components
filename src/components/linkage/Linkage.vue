@@ -12,7 +12,7 @@ $color: #f8c555;
 .h-linkage-text {
   box-sizing: border-box;
   cursor: pointer;
-  width: 200px;
+  min-width: 200px;
   height: 40px;
   line-height: 30px;
   display: inline-block;
@@ -65,12 +65,17 @@ $color: #f8c555;
   <div class="linkage-warp">
     <div ref="linkpageText" class="h-linkage-text" @click="switchPanelMode">{{ showText }}</div>
     <!--下拉面板-->
-    <div ref="linkpagePanel" class="h-linkage-panel" :style="{ width: `${style.width}px`, top: `${style.top}px` }" v-show="isShowPanel">
+    <div v-show="isShowPanel" ref="linkpagePanel" class="h-linkage-panel" :style="{ width: `${style.width}px`, top: `${style.top}px` }">
       <ul v-if="originList.length">
-        <li v-for="(item, index) of originList" :key="index"  :class="{'active-panel-option': item.val === linkageVal[0] }"
-        @mousemove="showChildren(item && item.children, 1, item)" @click.stop="selectValue(item.val, 1)">
+        <li
+          v-for="(item, index) of originList"
+          :key="index"
+          :class="{'active-panel-option': item.val === linkageVal[0] }"
+          @mousemove="showChildren(item && item.children, 1, item)"
+          @click.stop="selectValue(item.val, 1)"
+        >
           {{ item.name }}
-          <span class="more" v-if="item.children">></span>
+          <span v-if="item.children" class="more">></span>
         </li>
       </ul>
       <ul v-else>
@@ -78,26 +83,35 @@ $color: #f8c555;
       </ul>
     </div>
     <div
+      v-show="isShowSecondPanel"
       class="h-linkage-panel h-linkage-second"
       :style="{ width: `${style.width}px`, top: `${style.top}px`, left: `${style.width}px` }"
-      v-show="isShowSecondPanel"
     >
       <ul>
-        <li v-for="(item, index) of secondList.list" :key="index" :class="{'active-panel-option': secondList.parent.val === linkageVal[0] && item.val === linkageVal[1] }"
-        @mousemove="showChildren(item && item.children, 2, item)" @click.stop="selectValue(item.val, 2)">
+        <li
+          v-for="(item, index) of secondList.list"
+          :key="index"
+          :class="{'active-panel-option': secondList.parent.val === linkageVal[0] && item.val === linkageVal[1] }"
+          @mousemove="showChildren(item && item.children, 2, item)"
+          @click.stop="selectValue(item.val, 2)"
+        >
           {{ item.name }}
-          <span class="more" v-if="item.children">></span>
+          <span v-if="item.children" class="more">></span>
         </li>
       </ul>
     </div>
     <div
+      v-show="isShowThirdPanel"
       class="h-linkage-panel h-linkage-third"
       :style="{ width: `${style.width}px`, top: `${style.top}px`, left: `${2 * style.width}px` }"
-      v-show="isShowThirdPanel"
     >
       <ul>
-        <li v-for="(item, index) of thirdList.list" :key="index"  :class="{'active-panel-option':  secondList.parent.val === linkageVal[0]  && thirdList.parent.val === linkageVal[1]  && item.val === linkageVal[2] }"
-        @click.stop="selectValue(item.val, 3)">
+        <li
+          v-for="(item, index) of thirdList.list"
+          :key="index"
+          :class="{'active-panel-option': secondList.parent.val === linkageVal[0] && thirdList.parent.val === linkageVal[1] && item.val === linkageVal[2] }"
+          @click.stop="selectValue(item.val, 3)"
+        >
           {{ item.name }}
         </li>
       </ul>
@@ -109,16 +123,16 @@ $color: #f8c555;
 export default {
   model: {
     prop: 'value',
-    event: 'change',
+    event: 'change'
   },
   props: {
     data: {
       type: Array,
-      default: function () {
+      default: function() {
         return [];
-      },
+      }
     },
-    value: Array,
+    value: Array
   },
   data() {
     return {
@@ -128,7 +142,7 @@ export default {
       style: {
         width: 200,
         top: 0,
-        left: 0,
+        left: 0
       },
       originList: [],
       secondList: {
@@ -141,21 +155,27 @@ export default {
       },
       linkageVal: [],
       curSelectObj: {},
-      showText: '',
+      showText: ''
     };
   },
   watch: {
     value(newVal, oldVal) {
       this.linkageVal = newVal;
-      this.parseValsToText(this.linkageVal)
-    },
+      this.parseValsToText(this.linkageVal);
+    }
+  },
+  beforeDestroy() {
+    window.removeEventListener('click', this.globalClickCb);
+  },
+  created() {
+    this.init();
   },
   methods: {
     switchPanelMode() {
       this.getCurTextInputPos();
-      
+
       // this.switchPanelStatus(!this.isShowPanel);
-      //TODO: 有值，返显已选值的面板以及内容
+      // TODO: 有值，返显已选值的面板以及内容
       if ([this.isShowPanel, this.isShowSecondPanel, this.isShowThirdPanel].some(isShow => isShow)) {
         this.switchPanelStatus();
       } else {
@@ -229,8 +249,8 @@ export default {
     },
     parseValsToText(vals = []) {
       this.showText = '';
-      let enumsList = this.originList,
-        resData, textArr = [];
+      let enumsList = this.originList;
+      let resData; let textArr = [];
       for (let i = 0, len = vals.length; i < len; i++) {
         resData = enumsList.filter((item) => item.val === vals[i]);
         if (resData.length) {
@@ -247,7 +267,7 @@ export default {
       let resArr = [true, false, false];
       let transverseList = this.originList;
       this.linkageVal.forEach(val => {
-        for (let i = 0, len = transverseList.length; i < len ; i++) {
+        for (let i = 0, len = transverseList.length; i < len; i++) {
           if (transverseList[i].val === val) {
             if (level < 3 && transverseList[i].children && transverseList[i].children.length > 0) {
               this.loadPanelData(transverseList[i].children, transverseList[i], level);
@@ -262,12 +282,6 @@ export default {
       });
       this.switchPanelStatus(...resArr);
     }
-  },
-  beforeDestroy() {
-    window.removeEventListener('click', this.globalClickCb);
-  },
-  created() {
-    this.init();
-  },
+  }
 };
 </script>
