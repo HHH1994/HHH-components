@@ -58,6 +58,10 @@ export const pageRouterConfig = [
   {
     name: 'OrgNav',
     desc: '机构级联导航'
+  },
+  {
+    name: 'BatchPrintPicture',
+    desc: '批量打印图片'
   }
 
 ];
