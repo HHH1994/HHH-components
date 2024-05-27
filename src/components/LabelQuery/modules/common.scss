@@ -1,0 +1,45 @@
+.label-name {
+  display: flex;
+  align-items: center;
+  width: 91px;
+  margin-right: 20px;
+  flex-shrink: 0;
+  font-weight: 800;
+  font-size: 13px;
+  color: rgba(0, 0, 0, 0.85);
+  line-height: 28px;
+
+  .pack-tip {
+    margin-right: 8px;
+  }
+}
+
+.inner-tip {
+  position: absolute;
+  left: -20px;
+  top: 50%;
+  transform: translateY(-50%);
+  padding-top: 2px;
+}
+
+.rotate {
+  transform: rotate(180deg);
+}
+
+.anticon-caret-down {
+  transition: all 0.3s;
+}
+.custom-text {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.ellipsis-text {
+  display: inline-block;
+  max-width: 145px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  word-break: break-all;
+  white-space: nowrap;
+}
